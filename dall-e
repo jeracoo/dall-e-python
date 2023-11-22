@@ -1,0 +1,38 @@
+import requests
+import webbrowser
+
+def create_image(prompt, model="dall-e-2", n=1, quality="standard"):
+    headers = {
+        "Authorization": f"Bearer sk-XXXXXXXXXXX",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "prompt": prompt,
+        "model": model,
+        "n": n,
+        "quality": quality
+    }
+    response = requests.post("https://api.openai.com/v1/images/generations", json=data, headers=headers)
+    return response.json()
+
+def display_images(images):
+    if 'data' in images:
+        for img in images['data']:
+            webbrowser.open_new_tab(img['url'])
+
+def main():
+    user_prompt = input("Please enter a description for the image: ")
+    images = create_image(user_prompt, n=4)
+    display_images(images)
+
+    modify = input("Would you like to modify any of these images? (yes/no): ").lower()
+    if modify == 'yes':
+        image_num = int(input("Which image number would you like to modify? ")) - 1
+        new_prompt = input("Please enter the new description for the image: ")
+        modified_image = create_image(new_prompt, n=1)
+        display_images(modified_image)
+    else:
+        print("No modifications requested.")
+
+if __name__ == "__main__":
+    main()
